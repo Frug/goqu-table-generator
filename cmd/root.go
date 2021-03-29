@@ -6,7 +6,6 @@ import (
 
 	"github.com/Frug/goqu-table-generator/config"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -30,18 +29,28 @@ func Execute() {
 
 func init() {
 
-	rootCmd.PersistentFlags().Int("port", 5432, "Database host port number")
-	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().IntP("port", "p", 5432, "database host port number")
+	rootCmd.PersistentFlags().StringP("host", "a", "", "database host address")
+	rootCmd.PersistentFlags().StringP("name", "n", "public", "database name")
+	rootCmd.PersistentFlags().StringP("user", "u", "root", "database connection username")
+	rootCmd.PersistentFlags().String("pass", "", "database connection password")
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "enable verbose output")
 
 	cobra.OnInitialize(initConfig)
 }
 
 // initConfig reads in config file and ENV variables if set.
+// Flags override environment variables.
 func initConfig() {
 	v := viper.New()
 	v.SetConfigName("config")
 
+	// map flags to the keys found in config/config.go
 	v.BindPFlag("DBPort", rootCmd.PersistentFlags().Lookup("port"))
+	v.BindPFlag("DBHost", rootCmd.PersistentFlags().Lookup("host"))
+	v.BindPFlag("DBUser", rootCmd.PersistentFlags().Lookup("user"))
+	v.BindPFlag("DBPass", rootCmd.PersistentFlags().Lookup("pass"))
+	v.BindPFlag("DBName", rootCmd.PersistentFlags().Lookup("name"))
 
 	var err error
 	conf, err = config.NewFromEnv(v)
@@ -50,10 +59,4 @@ func initConfig() {
 		fmt.Printf("Failed to read configuration: %s.\n", err)
 		os.Exit(1)
 	}
-}
-
-func bindIfNonEmpty(v *viper.Viper, key string, flag *pflag.Flag) {
-
-	v.BindPFlag("port", rootCmd.PersistentFlags().Lookup("port"))
-
 }

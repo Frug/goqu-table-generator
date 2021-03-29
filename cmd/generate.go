@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/Frug/goqu-table-generator/pkg"
 	"github.com/spf13/cobra"
 )
@@ -11,7 +13,10 @@ var generateCmd = &cobra.Command{
 	Short: "Start the http generater.",
 	Long:  `Starts the http generater listening on the host specified in config.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		pkg.Generate(conf)
+		err := pkg.Generate(conf)
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}
 	},
 }
 
